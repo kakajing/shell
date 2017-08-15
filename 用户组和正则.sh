@@ -68,3 +68,56 @@ groups: hadop: No such user
 
 #找出/etc/passwd文件中的一位数或两位数
 [root@centos ~]# grep -o "[[:digit:]]\{1,2\}" /etc/passwd
+
+#显示当前系统上root、fedora或user1用户的默认shell
+[root@centos ~]# for i in root fedora user1; do grep "^$i" /etc/passwd | cut -d: -f1,7; done
+
+#找出/etc/rc.d/init.d/functions文件中某单词后面跟一组小括号的行，形如：hello()
+[root@centos ~]# grep "\b[[:alpha:]]\+\b()" /etc/rc.d/init.d/functions
+
+#使用echo命令输出一个绝对路径，使用grep取出其基名
+[root@centos ~]# echo "/etc/sysconfig/network-scripts/ifcfg-eth0" | grep -E -o "[^/]+/?$" | cut -d"/" -f1
+
+
+#扩展：取出其路径名
+[root@centos ~]# echo "/etc/rc.d/rc.sysinit" | egrep -o "^(/.*/)"
+
+#找出ifconfig命令结果中的1-255之间数字
+[root@centos ~]# ifconfig | egrep -o "\b`for i in {1..256};do echo $i; done;`"
+
+#写一个模式，能匹配合理的IP地址
+[root@centos ~]# ifconfig | egrep -o "[1-2][0-9]?[0-9]?.[0-2]?[0-9]?[0-9].[0-2]?[0-9]?[0-9].[0-2]?[0-9]?[0-9]"
+
+
+#写一个模式，能匹配出所有的邮件地址
+[root@centos ~]# cat mailaddress
+[root@centos ~]# cat mailaddress | egrep "^[[:alnum:]].*@[[:alnum:]]+[.].*[[:alnum:]]$"
+
+#查找/var目录下属主为root，且属组为mail的所有文件或目录
+[root@centos ~]# find /var/ -user root -a -group mail
+
+#查找当前系统上没有属主或属组的文件
+[root@centos ~]# find / -nouser -o -nogroup -type f
+
+
+#查找当前系统上没有属主或属组，且最近3天内曾被访问过的文件或目录
+[root@centos ~]# find / -nouser -o -nogroup -a -atime -3
+
+#查找/etc目录下所有用户都有写权限的文件
+[root@centos ~]# find /etc -perm -222 -exec ls -l {} \;
+
+#查找/etc目录下大于1M，且类型为普通文件的所有文件
+[root@centos ~]# find /etc/ -type f -size +1M
+[root@centos ~]# find /etc/ -type f -size +1M -exec ls -lh {} \;
+
+#查找/etc/init.d/目录下，所有用户都有执行权限，且其它用户有写权限的文件
+[root@centos ~]# find /etc/init.d/ -perm -113 -exec ls -lh {} \;
+
+#查找/usr目录下不属于root、bin或hadoop的文件
+[root@centos ~]# find /usr/ -not \( -user root -o -user bin -o -user hadoop \)
+
+#查找/etc/目录下至少有一类用户没有写权限的文件
+[root@centos ~]# find /etc/ -not -perm -222 -ls | less
+
+#查找/etc目录下最近一周内其内容被修改过，且不属于root或hadoop的文件
+[root@centos ~]# find /etc/ -mtime -7 -a -not \( -user root -o -user hadoop\)
